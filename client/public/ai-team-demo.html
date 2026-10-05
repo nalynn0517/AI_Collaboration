@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI TEAM — 역할별 질문 시연</title>
+<style>
+:root{--bg:#f4f6fb;--ink:#172033;--muted:#667085;--line:#e3e7f0;--blue:#4f63e8;--blue-pale:#eef0ff;--green:#16845b;--amber:#a66b00;--orange:#bc6925}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Segoe UI",Arial,sans-serif}
+.wrap{max-width:1220px;margin:0 auto;padding:30px 22px 54px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}
+.brand{font-weight:800;letter-spacing:.02em;font-size:17px}
+.badge{border:1px solid #d8dcf9;color:#4f63e8;background:white;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;white-space:nowrap}
+.hero{background:linear-gradient(125deg,#202b59,#394da9);color:white;border-radius:20px;padding:26px 30px;margin-bottom:18px;box-shadow:0 12px 35px #25315c20}
+.hero h1{margin:0 0 5px;font-size:clamp(25px,4vw,35px);letter-spacing:-.04em}
+.hero p{margin:0;color:#d9defd}
+.layout{display:grid;grid-template-columns:350px minmax(0,1fr);gap:18px;align-items:start}
+.panel{background:white;border:1px solid var(--line);border-radius:17px;padding:21px;box-shadow:0 5px 18px #17203308}
+.panel h2{font-size:16px;margin:0 0 12px}
+.label{font-size:13px;font-weight:750;display:block;margin:13px 0 6px}
+textarea,select{font:inherit;width:100%;border:1px solid #d9deea;border-radius:10px;padding:11px;background:#fff;color:var(--ink);outline:none}
+textarea{min-height:145px;resize:vertical}
+textarea:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #4f63e81a}
+.hint{font-size:12px;color:var(--muted);margin:7px 0 12px}
+.button{border:0;border-radius:10px;background:var(--blue);color:white;font-weight:800;font-size:15px;padding:13px 16px;width:100%;cursor:pointer}
+.button:hover{background:#3f51cf}
+.button:disabled{opacity:.6;cursor:wait}
+.notice{margin-top:12px;padding:11px 12px;background:#f5f6fb;border:1px solid var(--line);border-radius:10px;color:var(--muted);font-size:12px}
+.callout{margin-top:11px;padding:11px 12px;background:#fff8e9;border:1px solid #f2e0b7;color:#745311;border-radius:10px;font-size:12px}
+.session-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+.session-head h2{margin:0}
+.state{font-size:12px;color:var(--muted)}
+.briefbar{position:sticky;top:8px;z-index:5;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;padding:16px 18px;margin-bottom:17px;background:#eef0ff;border:1px solid #dfe3ff;border-radius:13px;box-shadow:0 5px 16px #1720330c}
+.briefcopy{min-width:0}
+.eyebrow{display:block;color:#4856b8;font-size:11px;font-weight:850;letter-spacing:.04em;margin-bottom:4px}
+.briefcopy p{margin:0;font-size:15px;font-weight:700;line-height:1.5;color:#26345c;white-space:pre-line}
+.budgetbox{min-width:118px;padding:10px 13px;background:white;border:1px solid #dfe3ff;border-radius:10px;text-align:center}
+.budgetbox span{display:block;color:var(--muted);font-size:11px;font-weight:700}
+.budgetbox strong{display:block;color:#3949b8;font-size:18px;margin-top:2px}
+.progress-wrap{margin:15px 0 13px}
+.progress-meta{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px;color:var(--muted);font-size:12px;font-weight:700}
+.progress-track{height:7px;background:#edf0f7;border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#5265eb,#00a98f);border-radius:inherit;transition:width .25s ease}
+.roles{display:grid;min-height:275px}
+.role{border:1px solid #dce2f1;border-radius:13px;padding:18px 19px;background:white;box-shadow:0 5px 18px #17203308}
+.role.running{border-color:#98a4ff;background:#f8f9ff}
+.empty-state{display:grid;place-items:center;min-height:255px;padding:24px;border:1px dashed #cfd6e5;border-radius:13px;background:#fafbfe;color:var(--muted);text-align:center}
+.empty-state strong{display:block;margin-bottom:6px;color:#34405a;font-size:16px}
+.nav-controls{display:flex;justify-content:space-between;gap:12px;margin-top:14px}
+.nav-controls[hidden]{display:none}
+.nav-button{border:1px solid #d9deea;background:white;border-radius:9px;padding:10px 14px;color:#384256;font:inherit;font-weight:750;cursor:pointer}
+.nav-button.primary{border-color:var(--blue);background:var(--blue);color:white}
+.nav-button:disabled{opacity:.45;cursor:default}
+.rolehead{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.who{font-weight:800}
+.status{font-size:12px;color:#8991a3;white-space:nowrap}
+.role.running .status{color:var(--blue);font-weight:700}
+.role.done .status{color:var(--green);font-weight:700}
+.field{margin-top:10px;padding-top:9px;border-top:1px solid #edf0f5}
+.field-label{display:block;font-size:11px;font-weight:800;letter-spacing:.02em;color:var(--blue);margin-bottom:3px}
+.handoff .field-label{color:var(--amber)}
+.answer .field-label{color:var(--green)}
+.field-text{white-space:pre-line;color:#384256;font-size:13px}
+.foot{font-size:12px;color:var(--muted);text-align:center;margin-top:19px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.wrap{padding:18px 13px 36px}.hero{padding:21px}.top{align-items:flex-start;flex-direction:column}.briefbar{grid-template-columns:1fr}.budgetbox{display:flex;align-items:center;justify-content:space-between;text-align:left}.budgetbox strong{margin:0}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div class="brand">🤖 AI TEAM <span style="color:#9299aa;font-weight:500">/ 역할별 질문 시연</span></div>
+    <span class="badge">오프라인 예시 · API 연결 없음</span>
+  </header>
+  <section class="hero">
+    <h1>하나의 문제, 다섯 개의 서로 다른 질문</h1>
+    <p>각 역할이 무엇을 묻고, 앞 단계에서 무엇을 받아, 어떤 답을 보태는지 확인합니다.</p>
+  </section>
+  <div class="layout">
+    <section class="panel">
+      <h2>하나의 공통 의뢰</h2>
+      <label class="label" for="problem">해결할 문제</label>
+      <textarea id="problem">동네에 작은 카페를 열고 싶어. 30~50대 직장인이 많은 지역이라고 가정하고, 예산 안에서 어떤 콘셉트와 메뉴를 시도할지 정하고 싶어. 실행 전에 확인할 위험도 알려줘.</textarea>
+      <label class="label" for="budget">예시 예산 한도</label>
+      <select id="budget">
+        <option value="1000">1,000만 원</option>
+        <option value="300">300만 원</option>
+      </select>
+      <p class="hint">모든 역할은 이 의뢰를 공유하지만, 각자 맡은 질문은 다릅니다.</p>
+      <button id="start" class="button">▶ AI 팀 회의 시작</button>
+      <div class="notice">역할은 한 번에 하나씩 보여줍니다. 설명을 마친 뒤 ‘다음 역할’을 눌러 천천히 넘기세요.</div>
+      <div class="callout">이 화면은 강의용 고정 시뮬레이션입니다. 실제 AI가 답하거나 시장 자료를 조회하지 않습니다. 입력은 이 브라우저 안에서만 사용됩니다.</div>
+    </section>
+    <section class="panel">
+      <div class="briefbar">
+        <div class="briefcopy">
+          <span class="eyebrow">모든 역할이 함께 받는 공통 의뢰</span>
+          <p id="briefText">동네에 작은 카페를 열고 싶어. 30~50대 직장인이 많은 지역이라고 가정하고, 예산 안에서 어떤 콘셉트와 메뉴를 시도할지 정하고 싶어. 실행 전에 확인할 위험도 알려줘.</p>
+        </div>
+        <div class="budgetbox"><span>예산 한도</span><strong id="budgetSummary">1,000만 원</strong></div>
+      </div>
+      <div class="session-head">
+        <h2>이번 역할</h2>
+        <span id="state" class="state">시작 전</span>
+      </div>
+      <div class="progress-wrap" aria-label="시연 진행 상태">
+        <div class="progress-meta"><span id="stepName">1 / 5 · 첫 번째 역할</span><span id="stepPercent">0%</span></div>
+        <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+      </div>
+      <div id="roles" class="roles"></div>
+      <div class="nav-controls" id="stepControls" hidden>
+        <button id="prevRole" class="nav-button" type="button">← 이전 역할</button>
+        <button id="nextRole" class="nav-button primary" type="button">다음 역할 →</button>
+      </div>
+    </section>
+  </div>
+  <div class="foot">보여주는 원리: 역할마다 다른 질문을 맡기고, 필요한 결과를 다음 역할에 전달한 뒤, 기준을 정해 하나로 종합합니다.</div>
+</main>
+<script>
+const problemInput=document.getElementById("problem");
+const budgetInput=document.getElementById("budget");
+const rolesBox=document.getElementById("roles");
+const startButton=document.getElementById("start");
+const stateLabel=document.getElementById("state");
+const briefText=document.getElementById("briefText");
+const budgetSummary=document.getElementById("budgetSummary");
+const stepName=document.getElementById("stepName");
+const stepPercent=document.getElementById("stepPercent");
+const progressFill=document.getElementById("progressFill");
+const stepControls=document.getElementById("stepControls");
+const prevRoleButton=document.getElementById("prevRole");
+const nextRoleButton=document.getElementById("nextRole");
+let activePlan=[];
+let currentIndex=-1;
+
+function isCafe(problem){return /카페|커피|coffee|cafe/i.test(problem)}
+function makeRoles(problem,budget){
+  const cafe=isCafe(problem);
+  const budgetText=Number(budget).toLocaleString("ko-KR")+"만 원";
+  const brief="공통 의뢰: "+problem+"\n예시 예산 한도: "+budgetText;
+  if(cafe){
+    const market={
+      title:"시장 조사 담당",
+      question:"30~50대 직장인이 주 고객이라면 어떤 이용 순간을 겨냥할까? 매력적인 기회 가설과 확인 방법을 제안해.",
+      handoff:brief,
+      answer:"기회 가설은 두 가지입니다. 출근 전에는 기다림이 짧은 커피 픽업, 점심 뒤에는 부담 없이 즐기는 작은 디저트가 매력적일 수 있습니다. 그래서 ‘5분 안에 커피를 받고 잠깐 쉬어가는 카페’를 제안합니다. 먼저 주변 직장인의 이동 시간대를 살펴보고 짧은 질문으로 두 순간 중 어느 쪽에 반응하는지 확인하겠습니다. 이 내용은 강의용 가설이며 실제 상권 조사 결과는 아닙니다.",
+      summary:"출근 전 빠른 커피와 점심 뒤 작은 디저트 휴식이 기회 가설이다. 5분 픽업 콘셉트로 두 시간대의 반응을 살펴본다."
+    };
+    const plan={
+      title:"메뉴·상품 기획자",
+      question:"두 이용 순간에 맞는 기억에 남는 콘셉트와 메뉴 조합은 무엇일까?",
+      handoff:"시장 조사 결과를 받음:\n"+market.summary,
+      answer:"콘셉트는 ‘5분 리셋 카페’입니다. 출근 전에는 아메리카노·라떼·디카페인 커피를 빠르게 고를 수 있게 하고, 점심 뒤에는 커피와 함께 먹는 시그니처 흑임자 휘낭시에를 제안합니다. 메뉴는 기본 음료 세 가지와 기억에 남는 디저트 한 가지로 단순하게 시작하면 주문도 쉽고 콘셉트도 분명합니다.",
+      summary:"‘5분 리셋 카페’: 빠른 기본 커피 세 가지와 시그니처 흑임자 휘낭시에를 묶어 기억에 남는 메뉴 경험을 만든다."
+    };
+    const finance={
+      title:"재무·운영 담당",
+      question:"시그니처 메뉴를 살리면서 예산 부담과 재고 위험을 낮출 첫 운영 방식은 무엇일까?",
+      handoff:"받은 내용:\n"+market.summary+"\n"+plan.summary+"\n예산 한도: "+budgetText,
+      answer:"재무 제안은 시그니처 디저트를 빼는 게 아니라 ‘한 종류를 예약 주문이나 하루 한정 수량으로 운영’하는 것입니다. 기본 음료 세 가지와 디저트 한 가지면 재료와 준비 과정을 단순하게 관리할 수 있고, 커피 세트로 함께 제안할 수도 있습니다. 예산 "+budgetText+"은 전체 개점비로 단정하지 말고, 먼저 팝업이나 사전 주문으로 세트별 원가와 실제 반응을 확인한 뒤 임대·장비 견적을 반영해 개점 예산을 구체화하겠습니다.",
+      summary:"시그니처 한 종류를 예약 주문·한정 수량으로 살리고, 팝업이나 사전 주문으로 세트 원가와 반응을 확인한 뒤 개점 예산을 구체화한다."
+    };
+    const critic={
+      title:"비판·위험 검토 담당",
+      question:"이 콘셉트가 잘되려면 무엇이 맞아야 할까? 아이디어를 살리면서 위험을 줄일 방법도 제안해.",
+      handoff:"받은 내용:\n"+market.summary+"\n"+plan.summary+"\n"+finance.summary,
+      answer:"세 가지를 시험하면 좋겠습니다. 첫째, 주문이 정말 빨라지는지 출근 시간대에 주문부터 수령까지 걸리는 시간을 기록합니다. 둘째, 흑임자 휘낭시에가 가격을 더 낼 만한 메뉴인지 기본 세트와 시그니처 세트의 선호를 비교합니다. 셋째, 남는 재고는 예약 주문과 한정 수량으로 줄입니다. 반응이 좋은 시간대와 메뉴에 집중하면 콘셉트를 유지하면서 운영 부담을 관리할 수 있습니다.",
+      summary:"주문 속도·시그니처 세트 선호·남는 재고를 시험한다. 시간대와 메뉴별 반응을 보고 잘되는 부분에 집중한다."
+    };
+    const ceo={
+      title:"대표 AI · 최종 종합",
+      question:"고객에게 매력적이고 운영 부담도 관리할 수 있는 하나의 시작안을 정리해.",
+      handoff:"시장 조사, 메뉴 기획, 재무 검토, 위험 검토의 요약을 모두 받음:\n"+market.summary+"\n"+plan.summary+"\n"+finance.summary+"\n"+critic.summary,
+      answer:"최종 시작안은 ‘5분 리셋 카페’입니다. 기본 커피 세 가지는 빠른 픽업으로 운영하고, 기획 담당이 제안한 흑임자 휘낭시에는 시그니처 메뉴로 살립니다. 재무·비판 담당 의견을 반영해 처음에는 예약 주문이나 한정 수량으로 제공하고, 커피 세트 선호와 시간대별 주문 속도, 남는 수량을 확인합니다. 이 방식이면 차별점은 유지하면서 다음 개점 계획에 필요한 운영 자료도 모을 수 있습니다.",
+      summary:"5분 리셋 카페를 제안한다. 빠른 기본 커피와 시그니처 디저트 한 종류를 운영하고, 세트 선호·주문 속도·남는 수량을 보며 개점 계획을 다듬는다."
+    };
+    return [market,plan,finance,critic,ceo];
+  }
+  const market={
+    title:"시장·사용자 조사 담당",
+    question:"이 문제를 자주 겪을 사람과 가장 매력적인 해결 기회를 제안해. 확인할 방법도 붙여라.",
+    handoff:brief,
+    answer:"가장 유력한 사용자 상황을 두 가지로 나눠 보겠습니다. 자주 반복되는 불편을 겪는 사람과, 특정 시간이나 장소에서 불편이 커지는 사람입니다. 우선 두 상황에 맞는 작은 해결 가설을 세우고 짧은 인터뷰나 관찰로 어떤 불편이 더 자주 나오고 해결 의향이 큰지 비교하겠습니다. 이 결과를 바탕으로 첫 고객을 좁힐 수 있습니다.",
+    summary:"사용자와 이용 상황을 두 가지 가설로 나누고, 짧은 인터뷰·관찰로 더 큰 기회를 골라본다."
+  };
+  const plan={
+    title:"해결안 기획 담당",
+    question:"앞서 찾은 불편을 줄일 간단하고 기억에 남는 첫 해결안은 무엇일까?",
+    handoff:"사용자 조사 결과를 받음:\n"+market.summary,
+    answer:"처음부터 여러 기능을 만들기보다 핵심 불편 하나를 바로 줄여주는 간단한 해결안을 제안합니다. 사용자가 한 번에 이해할 수 있도록 이름과 이용 흐름을 정하고, 시범 버전에서도 완성된 경험을 느끼게 합니다. 성공 기준을 미리 정하면 무엇을 계속 발전시킬지도 알기 쉽습니다.",
+    summary:"핵심 불편 하나를 선명하게 해결하는 간단하고 기억에 남는 시범안을 만든다."
+  };
+  const finance={
+    title:"비용·운영 담당",
+    question:"제안의 핵심 경험을 유지하면서 예산과 운영 시간을 아낄 방법은 무엇일까?",
+    handoff:"받은 내용:\n"+market.summary+"\n"+plan.summary+"\n예시 예산: "+budgetText,
+    answer:"핵심 경험에 직접 쓰이는 항목을 먼저 남기고, 기존 공간·도구·인력을 활용해 첫 시범을 운영하는 방식을 제안합니다. 이용자 반응과 실제 준비 시간을 기록하면 어떤 비용이 반복적으로 드는지 알 수 있습니다. "+budgetText+" 한도 안에서 시범 범위를 정하고, 다음 단계 예산은 시범에서 확인한 비용을 기준으로 나누겠습니다.",
+    summary:"기존 공간·도구를 활용한 작은 시범으로 핵심 경험을 살리고 실제 비용과 운영 시간을 기록한다."
+  };
+  const critic={
+    title:"비판·위험 검토 담당",
+    question:"사용자가 제안을 외면할 수 있는 이유를 찾고, 실패 전에 바꿔볼 방법은 무엇일까?",
+    handoff:"받은 내용:\n"+market.summary+"\n"+plan.summary+"\n"+finance.summary,
+    answer:"사용자는 제안 자체보다 익숙한 방법을 계속 쓸 수 있고, 처음 이용하는 과정이 번거로우면 중간에 멈출 수 있습니다. 시범 시작 전 이용자가 망설일 지점을 두세 가지 예상하고, 안내를 줄이거나 선택 단계를 간단히 만들어 보겠습니다. 이용하지 않은 이유도 한 문항으로 확인하면 다음 버전에서 고칠 부분을 찾을 수 있습니다.",
+    summary:"처음 이용의 번거로움을 줄이고, 사용하지 않은 이유를 짧게 물어 다음 버전에 반영한다."
+  };
+  const ceo={
+    title:"대표 AI · 최종 종합",
+    question:"사용자 가치·실행 가능성·개선 여지를 함께 살려 다음 실행안을 선택해.",
+    handoff:"앞선 네 역할의 요약을 받음:\n"+market.summary+"\n"+plan.summary+"\n"+finance.summary+"\n"+critic.summary,
+    answer:"다음 실행안은 핵심 불편 하나를 줄이는 시범을 운영하는 것입니다. 이해하기 쉬운 첫 이용 흐름을 만들고, 기존 자원을 활용해 사용자의 반응과 실제 운영 부담을 함께 기록합니다. 반응이 좋은 이용 상황은 더 발전시키고, 참여를 막는 지점은 안내와 기능을 조정합니다. 이렇게 하면 작은 시작으로 사용자 가치와 다음 투자 판단에 필요한 정보를 동시에 얻을 수 있습니다.",
+    summary:"핵심 불편을 해결하는 시범을 시작하고, 이용 반응과 운영 부담을 함께 기록해 다음 개선과 확장 여부를 정한다."
+  };
+  return [market,plan,finance,critic,ceo];
+}
+
+function addField(card,label,value,kind){
+  const field=document.createElement("div");
+  field.className="field "+(kind||"");
+  const heading=document.createElement("span");
+  heading.className="field-label";
+  heading.textContent=label;
+  const body=document.createElement("div");
+  body.className="field-text";
+  body.textContent=value;
+  field.append(heading,body);
+  card.appendChild(field);
+}
+
+function formatBudget(value){return Number(value).toLocaleString("ko-KR")+"만 원"}
+
+function updateBriefPreview(){
+  if(currentIndex>=0)return;
+  briefText.textContent=problemInput.value.trim()||"해결할 문제를 입력하세요.";
+  budgetSummary.textContent=formatBudget(budgetInput.value);
+}
+
+function reset(){
+  activePlan=[];
+  currentIndex=-1;
+  rolesBox.replaceChildren();
+  const empty=document.createElement("div");
+  empty.className="empty-state";
+  const message=document.createElement("div");
+  const title=document.createElement("strong");
+  title.textContent="공통 의뢰와 예산을 확인하세요";
+  const body=document.createElement("span");
+  body.textContent="시연을 시작하면 한 번에 한 역할씩 보여줍니다.";
+  message.append(title,body);
+  empty.appendChild(message);
+  rolesBox.appendChild(empty);
+  stepControls.hidden=true;
+  stepName.textContent="시작 전 · 준비 완료";
+  stepPercent.textContent="0%";
+  progressFill.style.width="0%";
+  stateLabel.textContent="시작 전";
+  startButton.textContent="▶ AI 팀 시연 시작";
+}
+
+function showRole(index){
+  if(!activePlan.length)return;
+  currentIndex=Math.max(0,Math.min(index,activePlan.length-1));
+  const role=activePlan[currentIndex];
+  rolesBox.replaceChildren();
+
+  const card=document.createElement("article");
+  card.className="role done";
+  const head=document.createElement("div");
+  head.className="rolehead";
+  const who=document.createElement("span");
+  who.className="who";
+  who.textContent=(currentIndex+1)+" / "+activePlan.length+" · "+role.title;
+  const status=document.createElement("span");
+  status.className="status";
+  status.textContent="예시 답변";
+  head.append(who,status);
+  card.appendChild(head);
+  addField(card,"담당 질문",role.question);
+  addField(card,"앞 단계에서 전달받은 정보",role.handoff,"handoff");
+  addField(card,"이 역할의 답변",role.answer,"answer");
+  rolesBox.appendChild(card);
+
+  const progress=Math.round((currentIndex+1)/activePlan.length*100);
+  stepName.textContent=(currentIndex+1)+" / "+activePlan.length+" · "+role.title;
+  stepPercent.textContent=progress+"%";
+  progressFill.style.width=progress+"%";
+  stateLabel.textContent=currentIndex===activePlan.length-1?"마지막 역할 · 최종 종합":"답변을 살펴본 뒤 다음 역할로 이동하세요";
+  stepControls.hidden=false;
+  prevRoleButton.disabled=currentIndex===0;
+  nextRoleButton.disabled=currentIndex===activePlan.length-1;
+  nextRoleButton.textContent=currentIndex===activePlan.length-1?"마지막 역할입니다":"다음 역할 →";
+}
+
+function startDemo(){
+  const problem=problemInput.value.trim()||"입력한 문제";
+  const budget=budgetInput.value;
+  activePlan=makeRoles(problem,budget);
+  briefText.textContent=problem;
+  budgetSummary.textContent=formatBudget(budget);
+  startButton.textContent="↻ 조건을 바꿔 처음부터";
+  showRole(0);
+}
+
+problemInput.addEventListener("input",updateBriefPreview);
+budgetInput.addEventListener("change",updateBriefPreview);
+startButton.addEventListener("click",startDemo);
+prevRoleButton.addEventListener("click",()=>showRole(currentIndex-1));
+nextRoleButton.addEventListener("click",()=>showRole(currentIndex+1));
+reset();
+updateBriefPreview();
+</script>
+</body>
+</html>
