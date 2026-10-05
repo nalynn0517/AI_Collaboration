@@ -70,7 +70,7 @@ textarea:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #4f63e
 <main class="wrap">
   <header class="top">
     <div class="brand">🤖 AI TEAM <span style="color:#9299aa;font-weight:500">/ 역할별 질문 시연</span></div>
-    <span class="badge">오프라인 예시 · API 연결 없음</span>
+    <span class="badge">주제 맞춤형 AI · 역할별 순차 응답</span>
   </header>
   <section class="hero">
     <h1>하나의 문제, 다섯 개의 서로 다른 질문</h1>
@@ -89,7 +89,7 @@ textarea:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #4f63e
       <p class="hint">모든 역할은 이 의뢰를 공유하지만, 각자 맡은 질문은 다릅니다.</p>
       <button id="start" class="button">▶ AI 팀 회의 시작</button>
       <div class="notice">역할은 한 번에 하나씩 보여줍니다. 설명을 마친 뒤 ‘다음 역할’을 눌러 천천히 넘기세요.</div>
-      <div class="callout">이 화면은 강의용 고정 시뮬레이션입니다. 실제 AI가 답하거나 시장 자료를 조회하지 않습니다. 입력은 이 브라우저 안에서만 사용됩니다.</div>
+      <div class="callout">입력한 주제와 질문을 각 역할의 요청에 반영해 AI가 순차적으로 답합니다. 시장 자료를 자동으로 사실 확인하는 기능은 아니므로, 근거가 필요한 내용은 다음 검증 행동으로 남깁니다.</div>
     </section>
     <section class="panel">
       <div class="briefbar">
@@ -133,86 +133,40 @@ const nextRoleButton=document.getElementById("nextRole");
 let activePlan=[];
 let currentIndex=-1;
 
-function isCafe(problem){return /카페|커피|coffee|cafe/i.test(problem)}
-function makeRoles(problem,budget){
-  const cafe=isCafe(problem);
-  const budgetText=Number(budget).toLocaleString("ko-KR")+"만 원";
-  const brief="공통 의뢰: "+problem+"\n예시 예산 한도: "+budgetText;
-  if(cafe){
-    const market={
-      title:"시장 조사 담당",
-      question:"30~50대 직장인이 주 고객이라면 어떤 이용 순간을 겨냥할까? 매력적인 기회 가설과 확인 방법을 제안해.",
-      handoff:brief,
-      answer:"기회 가설은 두 가지입니다. 출근 전에는 기다림이 짧은 커피 픽업, 점심 뒤에는 부담 없이 즐기는 작은 디저트가 매력적일 수 있습니다. 그래서 ‘5분 안에 커피를 받고 잠깐 쉬어가는 카페’를 제안합니다. 먼저 주변 직장인의 이동 시간대를 살펴보고 짧은 질문으로 두 순간 중 어느 쪽에 반응하는지 확인하겠습니다. 이 내용은 강의용 가설이며 실제 상권 조사 결과는 아닙니다.",
-      summary:"출근 전 빠른 커피와 점심 뒤 작은 디저트 휴식이 기회 가설이다. 5분 픽업 콘셉트로 두 시간대의 반응을 살펴본다."
-    };
-    const plan={
-      title:"메뉴·상품 기획자",
-      question:"두 이용 순간에 맞는 기억에 남는 콘셉트와 메뉴 조합은 무엇일까?",
-      handoff:"시장 조사 결과를 받음:\n"+market.summary,
-      answer:"콘셉트는 ‘5분 리셋 카페’입니다. 출근 전에는 아메리카노·라떼·디카페인 커피를 빠르게 고를 수 있게 하고, 점심 뒤에는 커피와 함께 먹는 시그니처 흑임자 휘낭시에를 제안합니다. 메뉴는 기본 음료 세 가지와 기억에 남는 디저트 한 가지로 단순하게 시작하면 주문도 쉽고 콘셉트도 분명합니다.",
-      summary:"‘5분 리셋 카페’: 빠른 기본 커피 세 가지와 시그니처 흑임자 휘낭시에를 묶어 기억에 남는 메뉴 경험을 만든다."
-    };
-    const finance={
-      title:"재무·운영 담당",
-      question:"시그니처 메뉴를 살리면서 예산 부담과 재고 위험을 낮출 첫 운영 방식은 무엇일까?",
-      handoff:"받은 내용:\n"+market.summary+"\n"+plan.summary+"\n예산 한도: "+budgetText,
-      answer:"재무 제안은 시그니처 디저트를 빼는 게 아니라 ‘한 종류를 예약 주문이나 하루 한정 수량으로 운영’하는 것입니다. 기본 음료 세 가지와 디저트 한 가지면 재료와 준비 과정을 단순하게 관리할 수 있고, 커피 세트로 함께 제안할 수도 있습니다. 예산 "+budgetText+"은 전체 개점비로 단정하지 말고, 먼저 팝업이나 사전 주문으로 세트별 원가와 실제 반응을 확인한 뒤 임대·장비 견적을 반영해 개점 예산을 구체화하겠습니다.",
-      summary:"시그니처 한 종류를 예약 주문·한정 수량으로 살리고, 팝업이나 사전 주문으로 세트 원가와 반응을 확인한 뒤 개점 예산을 구체화한다."
-    };
-    const critic={
-      title:"비판·위험 검토 담당",
-      question:"이 콘셉트가 잘되려면 무엇이 맞아야 할까? 아이디어를 살리면서 위험을 줄일 방법도 제안해.",
-      handoff:"받은 내용:\n"+market.summary+"\n"+plan.summary+"\n"+finance.summary,
-      answer:"세 가지를 시험하면 좋겠습니다. 첫째, 주문이 정말 빨라지는지 출근 시간대에 주문부터 수령까지 걸리는 시간을 기록합니다. 둘째, 흑임자 휘낭시에가 가격을 더 낼 만한 메뉴인지 기본 세트와 시그니처 세트의 선호를 비교합니다. 셋째, 남는 재고는 예약 주문과 한정 수량으로 줄입니다. 반응이 좋은 시간대와 메뉴에 집중하면 콘셉트를 유지하면서 운영 부담을 관리할 수 있습니다.",
-      summary:"주문 속도·시그니처 세트 선호·남는 재고를 시험한다. 시간대와 메뉴별 반응을 보고 잘되는 부분에 집중한다."
-    };
-    const ceo={
-      title:"대표 AI · 최종 종합",
-      question:"고객에게 매력적이고 운영 부담도 관리할 수 있는 하나의 시작안을 정리해.",
-      handoff:"시장 조사, 메뉴 기획, 재무 검토, 위험 검토의 요약을 모두 받음:\n"+market.summary+"\n"+plan.summary+"\n"+finance.summary+"\n"+critic.summary,
-      answer:"최종 시작안은 ‘5분 리셋 카페’입니다. 기본 커피 세 가지는 빠른 픽업으로 운영하고, 기획 담당이 제안한 흑임자 휘낭시에는 시그니처 메뉴로 살립니다. 재무·비판 담당 의견을 반영해 처음에는 예약 주문이나 한정 수량으로 제공하고, 커피 세트 선호와 시간대별 주문 속도, 남는 수량을 확인합니다. 이 방식이면 차별점은 유지하면서 다음 개점 계획에 필요한 운영 자료도 모을 수 있습니다.",
-      summary:"5분 리셋 카페를 제안한다. 빠른 기본 커피와 시그니처 디저트 한 종류를 운영하고, 세트 선호·주문 속도·남는 수량을 보며 개점 계획을 다듬는다."
-    };
-    return [market,plan,finance,critic,ceo];
+  const roleSpecs=[
+    {title:"시장·사용자 조사 담당",prompt:"누가 이 문제를 겪고 어떤 상황에서 가장 큰 가치를 느끼는지 가설을 세우고, 확인 방법을 제안해."},
+    {title:"해결안 기획 담당",prompt:"앞 단계의 사용자 가설을 바탕으로 가장 작은 첫 해결안과 핵심 이용 흐름을 제안해."},
+    {title:"비용·운영 담당",prompt:"앞 단계 해결안을 실제로 시험하기 위해 필요한 자원, 비용 항목, 운영 조건과 범위를 제안해."},
+    {title:"비판·위험 검토 담당",prompt:"앞 단계 제안에서 근거가 약하거나 실패할 수 있는 조건을 찾고, 가장 먼저 확인할 실험을 제안해."},
+    {title:"대표 AI · 최종 종합",prompt:"앞선 네 역할의 결과를 연결해 하나의 시작안, 채택 근거, 보류할 가정, 다음 행동을 정리해."}
+  ];
+  function fallbackRole(spec,problem,budget,handoff){
+    const prefix="프로젝트 주제 ‘"+problem+"’에 맞춘 "+spec.title+"의 초안입니다. ";
+    const endings=["먼저 핵심 사용자와 상황을 좁히고 짧은 인터뷰·관찰로 확인하겠습니다.","핵심 불편 하나를 해결하는 작은 시범으로 시작하고 성공 기준을 정하겠습니다.","예산 "+Number(budget).toLocaleString("ko-KR")+"만 원 안에서 범위를 작게 잡고 실제 비용과 시간을 기록하겠습니다.","근거 없는 가정은 확정하지 않고 가장 큰 위험을 검증할 작은 실험을 먼저 진행하겠습니다.","확인된 내용은 시작안에 반영하고, 확인 전 가정은 보류한 채 다음 행동을 정하겠습니다."];
+    return prefix+endings[roleSpecs.indexOf(spec)]+" 이전 단계에서 전달된 내용도 함께 검토했습니다.";
   }
-  const market={
-    title:"시장·사용자 조사 담당",
-    question:"이 문제를 자주 겪을 사람과 가장 매력적인 해결 기회를 제안해. 확인할 방법도 붙여라.",
-    handoff:brief,
-    answer:"가장 유력한 사용자 상황을 두 가지로 나눠 보겠습니다. 자주 반복되는 불편을 겪는 사람과, 특정 시간이나 장소에서 불편이 커지는 사람입니다. 우선 두 상황에 맞는 작은 해결 가설을 세우고 짧은 인터뷰나 관찰로 어떤 불편이 더 자주 나오고 해결 의향이 큰지 비교하겠습니다. 이 결과를 바탕으로 첫 고객을 좁힐 수 있습니다.",
-    summary:"사용자와 이용 상황을 두 가지 가설로 나누고, 짧은 인터뷰·관찰로 더 큰 기회를 골라본다."
-  };
-  const plan={
-    title:"해결안 기획 담당",
-    question:"앞서 찾은 불편을 줄일 간단하고 기억에 남는 첫 해결안은 무엇일까?",
-    handoff:"사용자 조사 결과를 받음:\n"+market.summary,
-    answer:"처음부터 여러 기능을 만들기보다 핵심 불편 하나를 바로 줄여주는 간단한 해결안을 제안합니다. 사용자가 한 번에 이해할 수 있도록 이름과 이용 흐름을 정하고, 시범 버전에서도 완성된 경험을 느끼게 합니다. 성공 기준을 미리 정하면 무엇을 계속 발전시킬지도 알기 쉽습니다.",
-    summary:"핵심 불편 하나를 선명하게 해결하는 간단하고 기억에 남는 시범안을 만든다."
-  };
-  const finance={
-    title:"비용·운영 담당",
-    question:"제안의 핵심 경험을 유지하면서 예산과 운영 시간을 아낄 방법은 무엇일까?",
-    handoff:"받은 내용:\n"+market.summary+"\n"+plan.summary+"\n예시 예산: "+budgetText,
-    answer:"핵심 경험에 직접 쓰이는 항목을 먼저 남기고, 기존 공간·도구·인력을 활용해 첫 시범을 운영하는 방식을 제안합니다. 이용자 반응과 실제 준비 시간을 기록하면 어떤 비용이 반복적으로 드는지 알 수 있습니다. "+budgetText+" 한도 안에서 시범 범위를 정하고, 다음 단계 예산은 시범에서 확인한 비용을 기준으로 나누겠습니다.",
-    summary:"기존 공간·도구를 활용한 작은 시범으로 핵심 경험을 살리고 실제 비용과 운영 시간을 기록한다."
-  };
-  const critic={
-    title:"비판·위험 검토 담당",
-    question:"사용자가 제안을 외면할 수 있는 이유를 찾고, 실패 전에 바꿔볼 방법은 무엇일까?",
-    handoff:"받은 내용:\n"+market.summary+"\n"+plan.summary+"\n"+finance.summary,
-    answer:"사용자는 제안 자체보다 익숙한 방법을 계속 쓸 수 있고, 처음 이용하는 과정이 번거로우면 중간에 멈출 수 있습니다. 시범 시작 전 이용자가 망설일 지점을 두세 가지 예상하고, 안내를 줄이거나 선택 단계를 간단히 만들어 보겠습니다. 이용하지 않은 이유도 한 문항으로 확인하면 다음 버전에서 고칠 부분을 찾을 수 있습니다.",
-    summary:"처음 이용의 번거로움을 줄이고, 사용하지 않은 이유를 짧게 물어 다음 버전에 반영한다."
-  };
-  const ceo={
-    title:"대표 AI · 최종 종합",
-    question:"사용자 가치·실행 가능성·개선 여지를 함께 살려 다음 실행안을 선택해.",
-    handoff:"앞선 네 역할의 요약을 받음:\n"+market.summary+"\n"+plan.summary+"\n"+finance.summary+"\n"+critic.summary,
-    answer:"다음 실행안은 핵심 불편 하나를 줄이는 시범을 운영하는 것입니다. 이해하기 쉬운 첫 이용 흐름을 만들고, 기존 자원을 활용해 사용자의 반응과 실제 운영 부담을 함께 기록합니다. 반응이 좋은 이용 상황은 더 발전시키고, 참여를 막는 지점은 안내와 기능을 조정합니다. 이렇게 하면 작은 시작으로 사용자 가치와 다음 투자 판단에 필요한 정보를 동시에 얻을 수 있습니다.",
-    summary:"핵심 불편을 해결하는 시범을 시작하고, 이용 반응과 운영 부담을 함께 기록해 다음 개선과 확장 여부를 정한다."
-  };
-  return [market,plan,finance,critic,ceo];
-}
+  async function askRole(spec,problem,budget,handoff){
+    const question=["프로젝트 주제: "+problem,"예산 한도: "+Number(budget).toLocaleString("ko-KR")+"만 원","당신의 역할: "+spec.title,"이번 역할의 요청: "+spec.prompt,"앞 단계에서 전달된 정보:\n"+(handoff||"아직 없음"),"규칙: 주제와 질문에 직접 답하고, 모르는 사실은 추정하지 말며, 답변 끝에 확인할 다음 행동 1개를 붙여라. 4~6문장 한국어로 답해."] .join("\n\n");
+    try{
+      const response=await fetch("/api/ai/respond",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({topic:problem,question})});
+      if(!response.ok)throw new Error("AI 응답 오류");
+      const data=await response.json();
+      return typeof data.answer==="string"&&data.answer.trim()?data.answer.trim():fallbackRole(spec,problem,budget,handoff);
+    }catch(error){return fallbackRole(spec,problem,budget,handoff);}
+  }
+  async function makeRoles(problem,budget,onProgress){
+    const budgetText=Number(budget).toLocaleString("ko-KR")+"만 원";
+    const plan=[];let previous="공통 의뢰: "+problem+"\n예산 한도: "+budgetText;
+    for(let i=0;i<roleSpecs.length;i++){
+      const spec=roleSpecs[i];
+      const answer=await askRole(spec,problem,budget,previous);
+      const summary=answer.replace(/\s+/g," ").slice(0,240);
+      plan.push({title:spec.title,question:spec.prompt,handoff:previous,answer,summary});
+      previous=spec.title+"의 결과:\n"+summary;
+      if(onProgress)onProgress(i+1,roleSpecs.length);
+    }
+    return plan;
+  }
 
 function addField(card,label,value,kind){
   const field=document.createElement("div");
@@ -272,7 +226,7 @@ function showRole(index){
   who.textContent=(currentIndex+1)+" / "+activePlan.length+" · "+role.title;
   const status=document.createElement("span");
   status.className="status";
-  status.textContent="예시 답변";
+  status.textContent="주제 맞춤형 AI 응답";
   head.append(who,status);
   card.appendChild(head);
   addField(card,"담당 질문",role.question);
@@ -291,15 +245,29 @@ function showRole(index){
   nextRoleButton.textContent=currentIndex===activePlan.length-1?"마지막 역할입니다":"다음 역할 →";
 }
 
-function startDemo(){
-  const problem=problemInput.value.trim()||"입력한 문제";
-  const budget=budgetInput.value;
-  activePlan=makeRoles(problem,budget);
-  briefText.textContent=problem;
-  budgetSummary.textContent=formatBudget(budget);
-  startButton.textContent="↻ 조건을 바꿔 처음부터";
-  showRole(0);
-}
+  async function startDemo(){
+    const problem=problemInput.value.trim()||"입력한 문제";
+    const budget=budgetInput.value;
+    briefText.textContent=problem;
+    budgetSummary.textContent=formatBudget(budget);
+    startButton.disabled=true;
+    startButton.textContent="AI 팀이 순서대로 답하는 중…";
+    stateLabel.textContent="주제에 맞춰 역할별 답변을 만드는 중";
+    stepName.textContent="1 / 5 · 시장·사용자 조사 담당";
+    stepPercent.textContent="0%";
+    progressFill.style.width="0%";
+    try{
+      activePlan=await makeRoles(problem,budget,(done,total)=>{
+        stepName.textContent=done+" / "+total+" · 역할별 응답 생성 중";
+        stepPercent.textContent=Math.round(done/total*100)+"%";
+        progressFill.style.width=Math.round(done/total*100)+"%";
+      });
+      startButton.textContent="↻ 조건을 바꿔 처음부터";
+      showRole(0);
+    }finally{
+      startButton.disabled=false;
+    }
+  }
 
 problemInput.addEventListener("input",updateBriefPreview);
 budgetInput.addEventListener("change",updateBriefPreview);
