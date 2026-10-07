@@ -139,7 +139,7 @@ let currentIndex=-1;
     {title:"해결안 기획 담당",prompt:"시장·사용자 조사 결과의 사용자와 상황을 반드시 인용해, 그 조건에 맞는 가장 작은 첫 해결안 1개를 제안해라. 해결안이 어떤 사용자 문제를 어떻게 해결하는지, 조사 결과 중 무엇을 반영했는지, 아직 가정인 부분을 구분해라."},
     {title:"비용·운영 담당",prompt:"앞선 해결안 1개만 대상으로 실제 시험에 필요한 자원·비용 항목·운영 순서를 정리해라. 비용 숫자를 새로 만들지 말고, 입력에 견적이 없으면 ‘견적 필요’로 표시해라. 해결안의 범위를 줄일 수 있는 조건도 제안해라."},
     {title:"비판·위험 검토 담당",prompt:"앞선 사용자 가설·해결안·운영 조건을 각각 확인하며, 서로 충돌하거나 근거가 약한 부분을 최대 3개 찾고 중요도를 붙여라. 각 문제마다 무엇을 확인해야 채택할 수 있는지와 가장 작은 검증 행동을 제안해라."},
-    {title:"대표 AI · 최종 종합",prompt:"앞선 네 역할의 내용을 빠짐없이 연결해 다음 형식으로만 정리해라: ① 하나의 시작안 ② 채택 근거 ③ 보류할 가정·위험 ④ 사람이 먼저 할 다음 행동. 앞선 역할에서 확인된 내용과 가정을 섞지 말고, 근거 없는 숫자·고객 반응·시장 결과는 만들지 마라."}
+    {title:"대표 AI · 최종 종합",prompt:"앞선 네 역할의 내용을 빠짐없이 연결해 다음 형식으로만 정리해라: 0. 프로젝트 이름(입력한 주제와 최종 시작안을 반영한 5~15자 이름) ① 하나의 시작안(누구의 어떤 문제를 어떤 방식으로 해결하는지) ② 채택 근거(앞선 역할에서 확인된 내용) ③ 보류할 가정·위험(확인 전에는 확정하지 않을 것) ④ 사람이 먼저 할 다음 행동. 앞선 역할에서 확인된 내용과 가정을 섞지 말고, 근거 없는 숫자·고객 반응·시장 결과는 만들지 마라."}
   ];
   function fallbackRole(spec,problem,budget,handoff){
     const prefix="프로젝트 주제 ‘"+problem+"’에 맞춘 "+spec.title+"의 초안입니다. ";
@@ -183,7 +183,17 @@ function addField(card,label,value,kind){
   card.appendChild(field);
 }
 
-function formatBudget(value){return Number(value).toLocaleString("ko-KR")+"만 원"}
+  function formatBudget(value){return Number(value).toLocaleString("ko-KR")+"만 원"}
+  function deriveProjectName(problem,finalText){
+    const named=finalText.match(/프로젝트 이름\s*[:：]\s*([^\n]+)/i);
+    if(named&&named[1].trim())return named[1].trim().replace(/[.。]+$/,'').slice(0,30);
+    const text=(problem+" "+finalText).toLowerCase();
+    if(/카페|커피|테이크아웃|숍인숍/.test(text))return "초소형 카페 시작안";
+    if(/독서|책모임/.test(text))return "온라인 독서 모임 시작안";
+    if(/유튜브|영상|콘텐츠/.test(text))return "맞춤형 콘텐츠 시작안";
+    const first=problem.split(/[.!?。！？]/)[0].replace(/^(나는|저는|우리 팀은|동네에)\s*/,'').trim();
+    return (first||"맞춤형 프로젝트").slice(0,24)+" 시작안";
+  }
 
 function updateBriefPreview(){
   if(currentIndex>=0)return;
@@ -246,7 +256,7 @@ function reset(){
   nextRoleButton.disabled=currentIndex===activePlan.length-1;
   nextRoleButton.textContent=currentIndex===activePlan.length-1?"마지막 역할입니다":"다음 역할 →";
   reviewLink.hidden=currentIndex!==activePlan.length-1;
-  if(currentIndex===activePlan.length-1){reviewLink.onclick=function(){sessionStorage.setItem('ai-team-demo-result',JSON.stringify({project:problemInput.value.trim(),budget:formatBudget(budgetInput.value),plan:activePlan.map(function(item){return item.title+'\n담당 질문: '+item.question+'\n답변: '+item.answer;}).join('\n\n')}));};}
+  if(currentIndex===activePlan.length-1){reviewLink.onclick=function(){const finalAnswer=activePlan[activePlan.length-1].answer;sessionStorage.setItem('ai-team-demo-result',JSON.stringify({project:deriveProjectName(problemInput.value.trim(),finalAnswer),budget:formatBudget(budgetInput.value),plan:finalAnswer}));};}
 }
 
   async function startDemo(){
