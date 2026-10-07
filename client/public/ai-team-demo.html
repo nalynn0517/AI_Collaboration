@@ -152,8 +152,8 @@ let currentIndex=-1;
     ];
     return endings[i]+"\n다음 행동: 앞 단계 결과를 이어 받아 이 역할의 결과를 한 가지 결정으로 구체화합니다.";
   }
-  async function askRole(spec,problem,budget,handoff){
-    const question=["프로젝트 주제: "+problem,"예산 한도: "+Number(budget).toLocaleString("ko-KR")+"만 원","당신의 역할: "+spec.title,"이번 역할의 구체적 요청: "+spec.prompt,"앞 단계 전체 맥락(아래 내용만 근거로 사용):\n"+(handoff||"아직 없음"),"공통 규칙: 이번 역할의 산출물을 답변 첫 부분에 구체적으로 제시해라. 앞 단계 내용을 그대로 반복하지 말고 자기 역할에서 추가한 판단·제안·결정을 보여줘라. 입력에 없는 사실·수치·고객 반응은 만들지 말고, 불확실성은 결과를 제시한 뒤 짧게 ‘가정’ 또는 ‘확인할 항목’으로 표시해라. 이전 단계의 가정은 사실처럼 바꾸지 마라. 한국어 6~8문장으로 답하고, 마지막 줄은 ‘다음 행동:’으로 시작해라."] .join("\n\n");
+  async function askRole(spec,problem,budget,handoff,fullHistory){
+    const question=["프로젝트 주제: "+problem,"예산 한도: "+Number(budget).toLocaleString("ko-KR")+"만 원","당신의 역할: "+spec.title,"이번 역할의 구체적 요청: "+spec.prompt,"직전 역할에서 전달받은 정보(이 내용만 우선 근거로 사용):\n"+(handoff||"아직 없음")+(fullHistory?"\n\n[최종 종합용 전체 역할 기록]\n"+fullHistory:""),"공통 규칙: 이번 역할의 산출물을 답변 첫 부분에 구체적으로 제시해라. 앞 단계 내용을 그대로 반복하지 말고 자기 역할에서 추가한 판단·제안·결정을 보여줘라. 입력에 없는 사실·수치·고객 반응은 만들지 말고, 불확실성은 결과를 제시한 뒤 짧게 ‘가정’ 또는 ‘확인할 항목’으로 표시해라. 이전 단계의 가정은 사실처럼 바꾸지 마라. 한국어 6~8문장으로 답하고, 마지막 줄은 ‘다음 행동:’으로 시작해라."] .join("\n\n");
     try{
       const response=await fetch("/api/ai/respond",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({topic:problem,question})});
       if(!response.ok)throw new Error("AI 응답 오류");
@@ -166,11 +166,11 @@ let currentIndex=-1;
     const plan=[];let previous="[공통 의뢰]\n"+problem+"\n[예산 한도]\n"+budgetText;
     for(let i=0;i<roleSpecs.length;i++){
       const spec=roleSpecs[i];
-      const answer=await askRole(spec,problem,budget,previous);
+      const history=plan.map((item,n)=>"[역할 "+(n+1)+" · "+item.title+"]\n"+item.answer.slice(0,1500)).join("\n\n");
+      const answer=await askRole(spec,problem,budget,previous,spec.title.includes("최종 종합")?history:"");
       const fullAnswer=answer.trim();
       plan.push({title:spec.title,question:spec.prompt,handoff:previous,answer:fullAnswer,summary:fullAnswer.replace(/\s+/g," ").slice(0,320)});
-      const history=plan.map((item,n)=>"[역할 "+(n+1)+" · "+item.title+"]\n"+item.answer.slice(0,1500)).join("\n\n");
-      previous="[공통 의뢰]\n"+problem+"\n[예산]\n"+budgetText+"\n\n"+history;
+      previous=fullAnswer;
       if(onProgress)onProgress(i+1,roleSpecs.length);
     }
     return plan;
@@ -248,7 +248,7 @@ function reset(){
   head.append(who,status);
   card.appendChild(head);
   addField(card,"담당 질문",role.question);
-  addField(card,"앞 단계에서 전달받은 정보",role.handoff,"handoff");
+  addField(card,"직전 역할에서 전달받은 핵심",role.handoff.length>520?role.handoff.slice(0,520)+"…":role.handoff,"handoff");
   addField(card,"이 역할의 답변",role.answer,"answer");
   rolesBox.appendChild(card);
 
