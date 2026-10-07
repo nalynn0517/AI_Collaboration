@@ -25,13 +25,13 @@ async function startServer() {
     const rawTopic = typeof req.body?.topic === "string" ? req.body.topic : "";
     const rawQuestion = typeof req.body?.question === "string" ? req.body.question : "";
     const topic = rawTopic.trim().slice(0, 160) || "나의 프로젝트";
-    const question = rawQuestion.trim().slice(0, 6000);
+    const question = rawQuestion.trim().slice(0, 12000);
     if (!question) {
       return res.status(400).json({ error: "질문을 입력해주세요." });
     }
     try {
       const result = await invokeLLM({
-        maxTokens: 900,
+        maxTokens: 1100,
         messages: [
           {
             role: "system",
