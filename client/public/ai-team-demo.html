@@ -81,11 +81,9 @@ textarea:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #4f63e
       <h2>하나의 공통 의뢰</h2>
       <label class="label" for="problem">해결할 문제</label>
       <textarea id="problem">동네에 작은 카페를 열고 싶어. 30~50대 직장인이 많은 지역이라고 가정하고, 예산 안에서 어떤 콘셉트와 메뉴를 시도할지 정하고 싶어. 실행 전에 확인할 위험도 알려줘.</textarea>
-      <label class="label" for="budget">예시 예산 한도</label>
-      <select id="budget">
-        <option value="1000">1,000만 원</option>
-        <option value="300">300만 원</option>
-      </select>
+      <label class="label" for="budget">예산 한도 (만원)</label>
+      <input id="budget" type="number" min="0" step="10" value="1000" inputmode="numeric" placeholder="예: 1000">
+      <p class="hint">예산을 만 원 단위로 직접 입력하세요. 예: 500, 1,200, 3,000</p>
       <p class="hint">모든 역할은 이 의뢰를 공유하지만, 각자 맡은 질문은 다릅니다.</p>
       <button id="start" class="button">▶ AI 팀 회의 시작</button>
       <div class="notice">역할은 한 번에 하나씩 보여줍니다. 설명을 마친 뒤 ‘다음 역할’을 눌러 천천히 넘기세요.</div>
@@ -267,7 +265,8 @@ function reset(){
 
   async function startDemo(){
     const problem=problemInput.value.trim()||"입력한 문제";
-    const budget=budgetInput.value;
+    const budget=Math.max(0,Number(budgetInput.value)||0);
+    budgetInput.value=budget||"";
     briefText.textContent=problem;
     budgetSummary.textContent=formatBudget(budget);
     startButton.disabled=true;
@@ -290,6 +289,7 @@ function reset(){
   }
 
 problemInput.addEventListener("input",updateBriefPreview);
+budgetInput.addEventListener("input",updateBriefPreview);
 budgetInput.addEventListener("change",updateBriefPreview);
 startButton.addEventListener("click",startDemo);
 prevRoleButton.addEventListener("click",()=>showRole(currentIndex-1));
