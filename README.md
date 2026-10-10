@@ -1,14 +1,90 @@
 # AI 협업 프로젝트 시연
 
-React / Express / tRPC / Drizzle starter, adapted from the Sandbox web-db-user template.
+AI에게 프로젝트 전체를 한 번에 맡기는 대신, **시장·사용자 조사 → 해결안 기획 → 비용·운영 검토 → 비판·위험 검토 → 최종 종합**의 역할로 나누어 협업하는 과정을 체험하는 강의용 시연 자료입니다.
 
-- `pnpm dev`: development server; honors `PORT` (default 3000).
-- `pnpm build` / `pnpm start`: build and serve `dist/index.js` and `dist/public/`.
-- `pnpm db:migrate`: apply checked-in migrations. `pnpm db:push`: generate and apply new schema changes.
-- `pnpm check` / `pnpm test`: types and application tests.
+수강생은 카페 예시뿐 아니라 자신의 프로젝트 주제와 예산을 직접 입력할 수 있습니다. 각 역할은 앞 단계의 결과를 이어받아 다음 판단을 추가하고, 마지막에는 하나의 시작안·채택 근거·보류할 가정과 위험·결정문으로 종합합니다.
 
-Start with the Webdev skill's default-template guide. Platform login, storage, payments and service contracts live in its shared references; read the relevant capability before extending its helper.
+## 공개 시연 링크
 
-`server/_core/publicConfig.ts` exposes only named public runtime values. Private keys stay server-side. The platform serves managed `/manus-storage/` assets; the application does not register a second proxy.
+- [AI 팀 역할별 질문 시연](https://aicollab-nvwfzkrj.manus.space/ai-team-demo.html)
+- [AI 결과 검토실](https://aicollab-nvwfzkrj.manus.space/ai-team-review-demo.html)
 
-Platform configuration is readable and editable through `webdev.config`. Default settings are initial values, not enforced constraints. The agent may modify the files, commands and configuration or follow the flexible guide for another stack.
+## 수강생용 실행 방법
+
+### 1. AI 팀 역할별 질문 시연
+
+1. [AI 팀 역할별 질문 시연](https://aicollab-nvwfzkrj.manus.space/ai-team-demo.html) 링크를 엽니다.
+2. `해결할 문제` 칸에 본인이 진행하려는 프로젝트나 해결하고 싶은 문제를 입력합니다.
+   - 예: `대학생을 위한 시험기간 간편식 서비스를 기획하고 싶다.`
+   - 예: `소규모 팀의 회의 내용을 자동으로 정리하는 서비스를 만들고 싶다.`
+3. `예산 한도`에 숫자를 직접 입력합니다. 단위는 **만원**입니다.
+   - `300` = 300만 원
+   - `1,000` = 1,000만 원
+   - `3,000` = 3,000만 원
+4. **AI 팀 회의 시작** 버튼을 누릅니다.
+5. 역할별 답변을 읽은 뒤 **다음 역할** 버튼을 눌러 순서대로 진행합니다.
+6. 마지막 `대표 AI · 최종 종합` 단계에서 프로젝트의 시작안과 결정문을 확인합니다.
+7. 결과를 검토하고 싶다면 **검토실로 결과 가져가기**를 누릅니다.
+
+> 답변은 입력한 주제·예산과 AI 응답에 따라 달라질 수 있습니다. AI가 제시한 숫자나 고객 반응은 실제 조사·견적을 대신하지 않으므로, 최종 결정 전에 직접 확인해야 합니다.
+
+### 2. AI 결과 검토실
+
+1. AI 팀 시연 마지막 단계에서 **검토실로 결과 가져가기**를 누르면 최종 종합 결과가 자동으로 전달됩니다.
+2. 직접 접속할 때는 [AI 결과 검토실](https://aicollab-nvwfzkrj.manus.space/ai-team-review-demo.html)을 엽니다.
+3. 왼쪽의 프로젝트명·기획안과 근거를 확인합니다.
+4. 오른쪽의 AI 검토 초안을 참고하되, 최종 판단은 사람이 합니다.
+5. 아래 다섯 기준에서 각각 상태를 선택합니다.
+   - 고객 수요와 해결안 연결
+   - 예산·비용 근거
+   - 사실과 가정 구분
+   - 실행 위험 검토
+   - 추가 검증 항목
+6. 문제가 발견되면 문제의 중요도를 선택하고, 문제 메모와 다음 행동을 직접 입력합니다.
+7. `개선 요약 만들기`를 눌러 검토 결과를 정리합니다.
+8. 필요하면 `발표 모드`로 전환해 발견한 문제·개선 방향·사람의 최종 결정을 크게 보여줍니다.
+
+## 발표 시 추천 흐름
+
+1. AI 팀 시연 링크를 먼저 열고 공통 의뢰와 예산을 입력합니다.
+2. 역할 1의 사용자 문제를 확인합니다.
+3. 역할 2가 앞선 결과를 바탕으로 구체적인 해결안을 제시하는지 봅니다.
+4. 역할 3에서 예산을 항목별로 나누고 운영 가능성을 검토하는지 확인합니다.
+5. 역할 4에서 가장 큰 위험과 줄이는 방법을 살펴봅니다.
+6. 역할 5의 최종 종합을 검토실로 전달합니다.
+7. 검토실에서 상태·중요도·문제 메모·다음 행동을 사람이 직접 입력합니다.
+8. 개선 요약과 발표 모드로 **AI의 제안과 사람의 최종 판단이 어떻게 달라지는지** 보여줍니다.
+
+## 개발자용 로컬 실행
+
+저장소를 내려받은 뒤 프로젝트 루트에서 다음 명령을 실행합니다.
+
+```bash
+git clone https://github.com/nalynn0517/AI_Collaboration.git
+cd AI_Collaboration
+pnpm install
+pnpm dev
+```
+
+개발 서버가 실행되면 다음 경로로 시연 페이지를 확인할 수 있습니다.
+
+- `http://localhost:3000/ai-team-demo.html`
+- `http://localhost:3000/ai-team-review-demo.html`
+
+프로젝트 전체를 빌드하려면 다음을 사용합니다.
+
+```bash
+pnpm build
+pnpm start
+```
+
+## 주요 파일
+
+- `client/public/ai-team-demo.html` — 역할별 AI 협업 시뮬레이터
+- `client/public/ai-team-review-demo.html` — AI 결과 검토·개선 요약·발표 모드
+- `PRESENTER_NOTES.md` — 발표 자료 관련 메모
+- `outputs/` — 작업 과정에서 생성된 보조 산출물
+
+## 주의사항
+
+이 자료는 AI 협업 과정을 설명하기 위한 교육용 시연입니다. AI가 작성한 시장 수요, 비용, 매출, 고객 반응은 자동으로 사실 확인된 정보가 아닙니다. 실제 프로젝트에 적용할 때는 인터뷰, 현장 관찰, 견적, 원가표, 운영 테스트 등 필요한 근거를 사람이 확인해야 합니다.
